@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import secrets
 import string
+import json
 
 RED = "#FE0000"
 RETRO = "#7D7463"
@@ -36,17 +37,35 @@ def save_password():
     website_length = len(website_text)
     password_length = len(password_text)
 
+    datas_transfered_to_json_file = {
+        website_text: {
+            "email": email_text,
+            "password": password_text
+        }
+    }
+
     if website_length == 0 or password_length == 0:
         messagebox.showinfo("Warning", "You can't leave any field empty !")
     else:
         is_ok = messagebox.askokcancel(title=website_text, message=f"These are the details entered \nEmail: {email_text}\nPassword: {password_text}\nIs it ok to save ?")
 
         if is_ok:
-            with open("datas.txt", "a") as file:
-                file.write(f"website : {website_text} | email : {email_text} | password : {password_text}\n")
+            try:
+                with open("datas.json", "r") as file:
+                    # reading the datas
+                    datas = json.load(file)
+            except FileNotFoundError:
+                # If the file doesn't exist, create a new JSON file and write the data
+                with("datas.js", "w") as file:
+                    json.dump(datas_transfered_to_json_file, file, indent=4)
+            else:
+                datas.update(datas_transfered_to_json_file)
+                with open("datas.json", "w") as file:
+                    #saving updated datas
+                    json.dump(datas_transfered_to_json_file, file, indent=4)
+            finally:
                 website_entry.delete(0, END)
                 password_entry.delete(0, END)
-
 
 # ---------------------------- UI SETUP ------------------------------- #
 
